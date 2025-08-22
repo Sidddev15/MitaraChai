@@ -2,8 +2,8 @@ import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
     palette: {
-        primary: { main: '#2E5A36' },     // tea-leaf green
-        secondary: { main: '#C99C66' },   // chai-gold
+        primary: { main: '#2E5A36' },      // tea-leaf green
+        secondary: { main: '#C99C66' },    // chai-gold
         background: { default: '#F1EFEA', paper: '#FFFFFF' },
         text: { primary: '#1F1F1F' },
     },
@@ -25,13 +25,25 @@ const theme = createTheme({
     },
     components: {
         MuiButton: {
-            styleOverrides: { root: { borderRadius: 8 } },
+            styleOverrides: {
+                root: { borderRadius: 10 }, // single source of truth
+            },
         },
         MuiAppBar: {
-            styleOverrides: { root: { backgroundColor: '#FFFFFF', color: '#1F1F1F' } },
+            styleOverrides: {
+                root: { backgroundColor: '#FFFFFF', color: '#1F1F1F' },
+            },
         },
         MuiPaper: {
-            styleOverrides: { root: { borderRadius: 12 } },
+            styleOverrides: {
+                root: { borderRadius: 12 },
+            },
+        },
+        MuiContainer: {
+            defaultProps: {
+                // helps typings; 'lg' is a union type
+                maxWidth: 'lg',
+            },
         },
     },
 });

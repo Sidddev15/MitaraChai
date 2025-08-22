@@ -16,3 +16,7 @@ body {
   background: #F1EFEA;
   /* warm off-white */
 }
+
+img {
+  user-select: none;
+}
