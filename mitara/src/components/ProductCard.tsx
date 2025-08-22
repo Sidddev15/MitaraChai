@@ -73,6 +73,7 @@ export default function ProductCard({ product }: { product: Product }) {
               id: `${product.id}-${variant.size}`,
               productId: product.id,
               name: `${product.name} (${variant.size})`,
+              size: variant.size,
               price: variant.price,
               qty: 1,
             })

@@ -20,9 +20,10 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 
 export type CartItem = {
-  id: string; // unique per product+size
+  id: string; // productId-size (e.g., premium-250g)
   productId: string;
-  name: string; // e.g., "Premium Leaves (250g)"
+  name: string; // "Premium Leaves (250g)"
+  size: '250g' | '500g';
   price: number; // INR
   qty: number;
 };
@@ -200,12 +201,76 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => {
-                  // Next commits will wire checkout; for now, just keep user in flow
-                  alert('Proceed to checkout (coming next).');
+                onClick={async () => {
+                  try {
+                    // build the minimal payload the server expects
+                    const items = state.items.map((it) => ({
+                      productId: it.productId,
+                      size: it.size, // '250g' | '500g'
+                      qty: it.qty,
+                    }));
+
+                    // create order on our server (which also creates Razorpay order)
+                    const res = await fetch('/api/checkout', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ items }),
+                    });
+                    const data = await res.json();
+                    if (!res.ok)
+                      throw new Error(data?.error || 'Checkout init failed');
+
+                    // load Razorpay Checkout.js
+                    await new Promise<void>((resolve, reject) => {
+                      if (typeof window === 'undefined')
+                        return reject(new Error('window missing'));
+                      if ((window as any).Razorpay) return resolve();
+                      const s = document.createElement('script');
+                      s.src = 'https://checkout.razorpay.com/v1/checkout.js';
+                      s.onload = () => resolve();
+                      s.onerror = () =>
+                        reject(new Error('Razorpay script failed to load'));
+                      document.body.appendChild(s);
+                    });
+
+                    const opts: any = {
+                      key: data.keyId,
+                      amount: data.order.amount, // paise
+                      currency: data.order.currency,
+                      name: 'Mitàra',
+                      description: 'Tea Order',
+                      order_id: data.order.id,
+                      theme: { color: '#2E5A36' },
+                      handler: (resp: any) => {
+                        // success → go to thank-you; webhook will mark it PAID
+                        value.clear();
+                        window.location.href = `/thank-you?order=${encodeURIComponent(
+                          data.order.id
+                        )}&payment=${encodeURIComponent(resp.razorpay_payment_id)}`;
+                      },
+                      modal: {
+                        ondismiss: () => {
+                          // user closed modal; keep cart as-is
+                        },
+                      },
+                      prefill: {
+                        // optional: fill from a user profile if you have it
+                        name: '',
+                        email: '',
+                        contact: '',
+                      },
+                    };
+
+                    // @ts-ignore (global type provided by src/types/razorpay-checkout.d.ts)
+                    const rzp = new window.Razorpay(opts);
+                    rzp.open();
+                  } catch (err: any) {
+                    console.error(err);
+                    alert(err.message || 'Checkout error');
+                  }
                 }}
               >
-                Proceed to Checkout
+                Pay Now
               </Button>
               <Button
                 variant="text"
