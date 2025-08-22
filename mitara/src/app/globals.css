@@ -1,0 +1,18 @@
+:root {
+  --font-inter: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  --font-playfair: 'Playfair Display', Georgia, serif;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: #F1EFEA;
+  /* warm off-white */
+}
