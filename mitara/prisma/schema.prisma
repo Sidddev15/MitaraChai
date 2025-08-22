@@ -1,0 +1,19 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"          // dev: SQLite; prod: switch to "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Lead {
+  id        String   @id @default(cuid())
+  name      String?
+  email     String
+  phone     String
+  message   String?
+  source    String?  // e.g., "contact_page"
+  createdAt DateTime @default(now())
+}
