@@ -1,12 +1,18 @@
 // prisma/schema.prisma
+
+// --- Generator: Prisma Client ---
 generator client {
   provider = "prisma-client-js"
 }
 
+// --- Datasource: choose your DB ---
+// Dev (SQLite). For prod, switch provider to "postgresql" and update DATABASE_URL.
 datasource db {
-  provider = "sqlite"          // dev: SQLite; prod: switch to "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+// --- Models ---
 
 model Lead {
   id        String   @id @default(cuid())
@@ -14,6 +20,36 @@ model Lead {
   email     String
   phone     String
   message   String?
-  source    String?  // e.g., "contact_page"
+  source    String?
   createdAt DateTime @default(now())
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  razorpayOrderId String?
+  status          OrderStatus @default(PENDING)
+  amount          Int // paise
+  currency        String      @default("INR")
+  receipt         String?
+  paymentId       String?
+  signature       String?
+  createdAt       DateTime    @default(now())
+  items           OrderItem[]
+}
+
+model OrderItem {
+  id        String @id @default(cuid())
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  orderId   String
+  productId String
+  name      String
+  size      String
+  price     Int // per-unit price in paise
+  qty       Int
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
 }
