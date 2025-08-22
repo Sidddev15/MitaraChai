@@ -2,6 +2,7 @@
 
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from '@/theme';
+import { CartProvider } from '@/store/cart';
 
 export default function AppThemeProvider({
   children,
@@ -11,7 +12,7 @@ export default function AppThemeProvider({
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {children}
+      <CartProvider>{children}</CartProvider>
     </ThemeProvider>
   );
 }

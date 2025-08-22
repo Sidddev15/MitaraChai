@@ -1,5 +1,4 @@
 'use client';
-
 import * as React from 'react';
 import {
   Card,
@@ -13,10 +12,12 @@ import {
   MenuItem,
 } from '@mui/material';
 import type { Product } from '@/lib/products';
+import { useCart } from '@/store/cart';
 
 export default function ProductCard({ product }: { product: Product }) {
   const [variantIndex, setVariantIndex] = React.useState(0);
   const variant = product.variants[variantIndex];
+  const { addItem } = useCart();
 
   return (
     <Card
@@ -29,7 +30,6 @@ export default function ProductCard({ product }: { product: Product }) {
         alt={product.name}
         sx={{ height: 220, objectFit: 'cover' }}
       />
-
       <CardContent sx={{ flexGrow: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: 700 }}>
           {product.name}
@@ -58,7 +58,6 @@ export default function ProductCard({ product }: { product: Product }) {
               </MenuItem>
             ))}
           </TextField>
-
           <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
             ₹{variant.price}
           </Typography>
@@ -69,16 +68,15 @@ export default function ProductCard({ product }: { product: Product }) {
         <Button
           fullWidth
           variant="contained"
-          onClick={() => {
-            // stub for now; real cart in Commit #5
-            console.log('ADD_TO_CART', {
+          onClick={() =>
+            addItem({
               id: `${product.id}-${variant.size}`,
               productId: product.id,
               name: `${product.name} (${variant.size})`,
               price: variant.price,
               qty: 1,
-            });
-          }}
+            })
+          }
         >
           Add to Cart
         </Button>
